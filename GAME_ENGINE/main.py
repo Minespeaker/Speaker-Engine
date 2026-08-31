@@ -509,7 +509,6 @@ class text:
         return "".join(inlst), blinkpos
 
 
-
 cpfl = None
 
 ld = {"sx": 0, "sy": 0, "menu_open": False, "menu_slt": None, "rnm": False, "rnt": None}
