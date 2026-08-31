@@ -1,3 +1,9 @@
-start_bracket, end_bracket = "(", ")"
+with open("GAME_ENGINE/main.py", "r") as f:
+    code = f.read()
+    code = list(code)
+    
+print(f"There are {len(code)} characters")
 
-exec(f"print {start_bracket}\"Hello, world\"{end_bracket}")
+code = [i for i in code if i == "z"]
+
+print(f"There are {len(code)} characters")

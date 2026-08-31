@@ -44,7 +44,7 @@ def dprint(*args):
 class execute:
     def __init__(self, screen, base_vars):
         """
-        Initialize the Container
+        Initialise the Container
         
         :param self: The Container
         :param screen: A Tuple of the size of the Screen, leave as empty Tuple for no screen
@@ -510,7 +510,9 @@ class text:
 
 
 
+cpfl = None
 
+ld = {"sx": 0, "sy": 0, "menu_open": False, "menu_slt": None, "rnm": False, "rnt": None}
 
 def rgb_to_hsv(r, g, b):
     r, g, b = r / 255.0, g / 255.0, b / 255.0
@@ -563,8 +565,6 @@ def recursive_scan(dir, q, file=None, _parent=True):
         q.put(filen)
     return filen
 
-cpfl = None
-
 def loadbin(file_path):
     with open(file_path, "rb") as f:
         file_content = f.read()
@@ -586,9 +586,6 @@ def savebin(file_path, string):
     except FileExistsError:
         with open(norm_path, "wbx") as f:
             f.write(text_to_write)
-    
-
-ld = {"sx": 0, "sy": 0, "menu_open": False, "menu_slt": None, "rnm": False, "rnt": None}
     
 def listfiles(foldername, files, txtin, size, scrn, off, mx, my, mc, _parent=True, path=[], ogox=None, ogoy=None):
     global ld, sep
@@ -821,7 +818,6 @@ def hsv_to_rgb(h, s, v):
     b = int((bp + m) * 255)
 
     return r, g, b
-
 
 def convert_to_standalone_exe(script_path):
     """
@@ -1761,7 +1757,7 @@ if __name__ == "__main__":
             if charpressed == "BACKSPACE":
                 skip = False
             else:
-                if framen > 15:
+                if framen > 1:
                     skip = False
                     run = False
                     try:
@@ -2066,7 +2062,7 @@ if __name__ == "__main__":
                     scan.join()
                 framen += 1
                 if not (not (exitbool) or bgrs):
-                    run = False454647
+                    run = False
         case _:
             raise Exception("Bad game type")
         
