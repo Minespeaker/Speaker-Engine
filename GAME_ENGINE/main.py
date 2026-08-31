@@ -2066,7 +2066,7 @@ if __name__ == "__main__":
                     scan.join()
                 framen += 1
                 if not (not (exitbool) or bgrs):
-                    run = False
+                    run = False454647
         case _:
             raise Exception("Bad game type")
         
