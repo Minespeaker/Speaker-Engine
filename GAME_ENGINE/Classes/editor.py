@@ -1,7 +1,86 @@
+import pygame
+import copy
+from pygame import freetype
+from Classes.pyselect import pyselect
+
+class text:
+    def get_text_width(text, font):
+    
+        text = str(text)
+        
+        if not pygame.display.get_init():
+            pygame.display.init()
+        
+        text_rect = font.get_rect(text)
+        
+        return(text_rect.width+8)
+    
+    def edit_str(char, instr, blinkpos):
+    
+        if blinkpos > len(instr):
+            blinkpos = len(instr)
+                
+        inlst = list(instr)
+        
+        if char == "BACKSPACE":
+            if blinkpos != 0:
+                blinkpos -= 1
+                try:
+                    del inlst[blinkpos]
+                except Exception:
+                    # defensive: if deletion fails, ignore
+                    pass
+    
+        elif char == "UP":
+            blinkpos = 0
+            
+        elif char == "DOWN":
+            blinkpos = len(inlst)
+            
+        elif char == "LEFT":
+            if blinkpos != 0:
+                blinkpos -= 1
+            
+        elif char == "RIGHT":
+            if blinkpos != len(inlst):
+                blinkpos += 1
+        
+        elif char == "WORD_LEFT":
+            # Move cursor to the start of the previous word
+            if blinkpos > 0:
+                i = blinkpos - 1
+                # skip any trailing whitespace to the left
+                while i > 0 and inlst[i].isspace():
+                    i -= 1
+                # now move to the start of the word
+                while i > 0 and not inlst[i-1].isspace():
+                    i -= 1
+                blinkpos = i
+        
+        elif char == "WORD_RIGHT":
+            # Move cursor to the start of the next word
+            L = len(inlst)
+            i = blinkpos
+            # skip any whitespace to the right
+            while i < L and inlst[i].isspace():
+                i += 1
+            # skip the current word
+            while i < L and not inlst[i].isspace():
+                i += 1
+            blinkpos = i
+
+        elif char == "ESCAPE":
+            pass
+            
+        elif char != "":
+            s = str(char)
+            for ch in s:
+                inlst.insert(blinkpos, ch)
+                blinkpos += 1
+        return "".join(inlst), blinkpos
+
 class editor:
     def __init__(self, scroll_multiplier=0.2, size=tuple, font=None):
-        import pygame
-        from pygame import freetype
         screen_x, screen_y = size
         self.font = font
         if font == None:
@@ -21,8 +100,6 @@ class editor:
         self.copyoneline = None
     
     def code_update(self, cpressed, scroll=0):
-        import pygame
-        from classes import text
         mx, my = pygame.mouse.get_pos()
         mc = pygame.mouse.get_pressed()
         self.scrnspd += scroll*self.sm
@@ -78,7 +155,6 @@ class editor:
                 self.pos = [[], []]
             
     def _get_pos_of_mouse(self, mx, my):
-        from classes import text
         mx -= self.px
         my -= self.py
         my += self.scrnps*self.font_size
@@ -102,11 +178,6 @@ class editor:
         return self.bpl, self.bpp
 
     def draw(self, screen, pos):
-        import pygame
-        import sys
-        import math
-        import copy
-        from classes import text
         self.scrn = pygame.Surface((self.screen_size_x, self.screen_size_y))
         self.scrn.fill((16, 16, 16))
         pygame.draw.rect(self.scrn, (128, 128, 128), (0, 0, self.screen_size_x, self.screen_size_y), 5, 5)
@@ -120,10 +191,9 @@ class editor:
             for _ in range (line.count("\t")):
                 line.pop(line.index("\t"))
             line = "".join(line)
-            print(line)
             pygame.draw.rect(self.scrn, (64, 64, 64), (0, round(((1+i)*self.font_size)-(self.scrnps*self.font_size)), round(self.scrn.get_width()-10), 1))
             if round(((i)*self.font_size)-(self.scrnps*self.font_size)) >= 0 and round(((i)*self.font_size)-(self.scrnps*self.font_size)) <= self.screen_size_y:
-                self.font.render_to(self.scrn, (7+(indent*15), round(((i)*self.font_size)-(self.scrnps*self.font_size))), line, (192, 192, 192))
+                self.font.render_to(self.scrn, (7+(indent*15), round(((i)*self.font_size)-(self.scrnps*self.font_size))+6), line, (192, 192, 192))
             if i == self.bpl:
                 pygame.draw.rect(self.scrn, (255, 255, 255), (round((text.get_text_width(line[:self.bpp], self.font)))+(indent*15), round(((i)*self.font_size)-(self.scrnps*self.font_size)+6), 2, self.font_size-8))
             if self.copyoneline != None:

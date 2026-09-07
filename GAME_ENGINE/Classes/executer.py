@@ -7,7 +7,7 @@ def load(file_path):
 class execute:
     def __init__(self, screen, base_vars):
         """
-        Initialize the Container
+        Initialise the Container
         
         :param self: The Container
         :param screen: A Tuple of the size of the Screen, leave as empty Tuple for no screen
