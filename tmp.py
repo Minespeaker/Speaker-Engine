@@ -1,9 +1,35 @@
-with open("GAME_ENGINE/main.py", "r") as f:
-    code = f.read()
-    code = list(code)
+import os
+from os.path import join as pathjoin
+
+def get_py_files(dir, _parent=True):
+    idx = set()
+    for obj in os.listdir(dir):
+        if os.path.isfile(pathjoin(dir, obj)):
+            if ".py" in obj:
+                idx.add(pathjoin(dir, obj))
+        elif os.path.isdir(pathjoin(dir, obj)):
+            if obj not in ("__pycache__", ".vscode", ".venv", ".git"):
+                subdir = get_py_files(pathjoin(dir, obj), False)
+                for i in subdir:
+                    idx.add(i)
+        else:
+            raise Exception("Fuck you")
+        
+    return idx
     
+code = []
+
+for i in get_py_files("/home/minespeaker/programs/Speaker-Engine/GAME_ENGINE"):
+    with open(i, "r", encoding="utf-8") as f:
+        code.append(f.read())
+    f.close()
+    
+code = "".join(code)
+
 print(f"There are {len(code)} characters")
 
-code = [i for i in code if i == "z"]
+for letter in list("abcdefghijklmnopqrstuvwxyz1234567890-=`~'\"\\/,.<>[]{}!@#$%^&*()_+|?;:"):
 
-print(f"There are {len(code)} characters")
+    tmp = [i for i in code if i == letter]
+
+    print(f"There are {len(tmp)} appearances of \"{letter}\"")
