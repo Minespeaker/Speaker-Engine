@@ -18,8 +18,10 @@ def get_py_files(dir, _parent=True):
     return idx
     
 code = []
+files = []
 
 for i in get_py_files("/home/minespeaker/programs/Speaker-Engine/GAME_ENGINE"):
+    files.append(i)
     with open(i, "r", encoding="utf-8") as f:
         code.append(f.read())
     f.close()
@@ -30,6 +32,9 @@ print(f"There are {len(code)} characters")
 
 for letter in list("abcdefghijklmnopqrstuvwxyz1234567890-=`~'\"\\/,.<>[]{}!@#$%^&*()_+|?;:"):
 
-    tmp = [i for i in code if i == letter]
+    tmp = [i for i in code.lower() if i == letter]
 
     print(f"There are {len(tmp)} appearances of \"{letter}\"")
+    
+for file in files:
+    print(file)
