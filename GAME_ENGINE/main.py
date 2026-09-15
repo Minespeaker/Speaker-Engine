@@ -61,22 +61,16 @@ def listfiles(foldername, files, txtin, size, scrn, off, mx, my, mc, _parent=Tru
     global ld, sep
     if _parent:
         path = []
-    dprint(f"Listfiles: wakeup as {f"ChildProcess with Dir {f"{sep}".join(path)}{sep}{foldername}" if not _parent else "ParentProcess"}")
     pygame.init()
     freetype.init()
-    dprint("Listfiles: PG+PGFT init pass")
-    if txtin == "BACKSPACE":
-        dprint("Listfiles: Bspace detect")
     ox, oy = off
     if ogox == None or ogoy == None:
         ogox, ogoy = ox, oy
     path.append(foldername)
-    dprint(f"Listfiles: {path}")
     x, y = size
     _pos = 0
     linesize = 25
     indent = 25
-    dprint(f"Listfiles: {x}, {y}")
     if x < 0: x = 0
     if y < 0: y = 0
     surf = pygame.Surface((x, y), pygame.SRCALPHA)
@@ -94,7 +88,6 @@ def listfiles(foldername, files, txtin, size, scrn, off, mx, my, mc, _parent=Tru
         if tmprect.collidepoint(mx, my) and scrnrect.collidepoint(mx, my):
             pygame.draw.rect(scrn, (192, 192, 192, 128), tmprect)
             if mc[0]:
-                dprint(files)
                 files = {foldername: (list(files[foldername])[0], not list(files[foldername])[1])}
             if mc[2]:
                 ld["menu_open"] = True
@@ -108,18 +101,12 @@ def listfiles(foldername, files, txtin, size, scrn, off, mx, my, mc, _parent=Tru
     else:
         txt.render_to(surf, (0, 1), f"|-{foldername} ▾", (255, 255, 255))
 
-    dprint("Listfiles: Full Init Pass")
-    dprint(f"Listfiles: {files}")
     unpackedfiles, headunpack = files[foldername]
-    dprint(f"Listfiles: {unpackedfiles}")
     if headunpack:
         for name, data in unpackedfiles.items():
-            dprint(f"Listfiles: {name}, {data}")
             _pos += 1   
             if type(data) == tuple:
                 contents, unpack = data
-                dprint(f"Listfiles: {contents}")
-                dprint(f"Listfiles: {unpack}")
                 tmprect = pygame.Rect(-indent*(len(path)+1)+ox, _pos*linesize+oy, x+indent*(len(path)+1), linesize)
                 if tmprect.collidepoint(mx, my) and scrnrect.collidepoint(mx, my):
                     hover = True
@@ -133,11 +120,7 @@ def listfiles(foldername, files, txtin, size, scrn, off, mx, my, mc, _parent=Tru
                         ld["menu_slt"] = path
                         ld["menu_slt"].append(name)
                         ld["sx"], ld["sy"] = mx, my
-                dprint(f"Listfiles: {data}")
-                dprint(f"Listfiles: {contents}")
-                dprint(f"Listfiles: {unpack}")
                 if unpack:
-                    dprint("Listfiles: Open folder")
                     childsurf, childfiles, childpos = listfiles(name, {name: data}, txtin, (x-indent, y-(_pos-linesize)), scrnsz, (ox+indent, oy+_pos*linesize), mx, my, mc, False, list(path), ogox, ogoy)
                     unpackedfiles[name] = childfiles, unpack
                     folders.add(childsurf)
@@ -145,12 +128,10 @@ def listfiles(foldername, files, txtin, size, scrn, off, mx, my, mc, _parent=Tru
                         _pos += 1
                         txt.render_to(surf, (indent, _pos*linesize), "|", (255, 255, 255))
                 else:
-                    dprint("Listfiles: Comp folder")
                     txt.render_to(surf, (indent, _pos*linesize), f"|-{name} ▸", (255, 255, 255))
 
 
             else:
-                dprint("Listfiles: File")
                 tmprect = pygame.Rect(-indent*(len(path)+1)+ox, _pos*linesize+oy, x+indent*(len(path)+1), linesize)
                 if tmprect.collidepoint(mx, my) and scrnrect.collidepoint(mx, my):
                     hover = True
@@ -165,8 +146,6 @@ def listfiles(foldername, files, txtin, size, scrn, off, mx, my, mc, _parent=Tru
                 txt.render_to(surf, (indent, _pos*linesize), f"|-{name}", (255, 255, 255))
     files = {foldername: (unpackedfiles, headunpack)}
     scrn.blit(surf, off)
-    dprint(ld)
-    dprint(path)
     menu = pygame.Rect(ld["sx"], ld["sy"], 120, 150)
     
     if menu.collidepoint(mx, my) and ld["menu_open"]:
@@ -805,8 +784,10 @@ if __name__ == "__main__":
     for y in range (17):
         color = round(32 - y)
         pygame.draw.rect(top, (color, color, color), (0, 75 + y, screen_width, 1))
-
-    # Main Loop
+        
+        
+# Main Loop
+if __name__ == "__main__":
     while run:
 
         psw, psh = screen_width, screen_height
@@ -1015,6 +996,8 @@ if __name__ == "__main__":
                 dprint("Reloaded Page")
 
 
+# Editors
+if __name__ == "__main__":
     if targ_item != "":
         item = string_to_list(load(f"{FILE_PATH}Quickaccess{sep}{targ_item}{file_type}"), "\nbreak\n")
     else:
