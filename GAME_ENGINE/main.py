@@ -52,6 +52,9 @@ from Functions.fileRW   import *
 from Functions.fileSORT import *
 from Functions.edit     import *
 from Functions.export   import *
+from Functions.math     import *
+from Functions.colours  import *
+from Functions.list     import *
 from Functions.misc     import *
 
 def listfiles(foldername, files, txtin, size, scrn, off, mx, my, mc, _parent=True, path=[], ogox=None, ogoy=None):
@@ -1031,8 +1034,6 @@ if __name__ == "__main__":
     q = multiprocessing.Queue()
     scan = multiprocessing.Process(target=recursive_scan, args=(sep, os.path.join(FILE_PATH, "GAMES", game_name), q))
     scan.start()
-    
-    
 
     match item[1]:
         case "2D":

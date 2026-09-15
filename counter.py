@@ -30,11 +30,23 @@ code = "".join(code)
 
 print(f"There are {len(code)} characters")
 
-for letter in list("abcdefghijklmnopqrstuvwxyz1234567890-=`~'\"\\/,.<>[]{}!@#$%^&*()_+|?;:"):
+letters = []
+
+for letter in list("abcdefghijklmnopqrstuvwxyz1234567890-=`~'\"\\/,.<>[]{}!@#$%^&*()_+|?;: "):
 
     tmp = [i for i in code.lower() if i == letter]
 
-    print(f"There are {len(tmp)} appearances of \"{letter}\"")
+    letters.append(len(tmp))
+    
+letters.sort()
+letters.reverse()
+
+for i in letters:
+    print(f"There are {i} appearances of \"{letter}\"")
     
 for file in files:
     print(file)
+    
+code = "".join(code)
+
+print(f"There are {len(code)} characters")
