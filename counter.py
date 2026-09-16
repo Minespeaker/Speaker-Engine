@@ -26,7 +26,7 @@ for i in get_py_files("/home/minespeaker/programs/Speaker-Engine/GAME_ENGINE"):
         code.append(f.read())
     f.close()
     
-code = "".join(code)
+code = "\n\n".join(code)
 
 print(f"There are {len(code)} characters")
 
@@ -36,13 +36,12 @@ for letter in list("abcdefghijklmnopqrstuvwxyz1234567890-=`~'\"\\/,.<>[]{}!@#$%^
 
     tmp = [i for i in code.lower() if i == letter]
 
-    letters.append(len(tmp))
+    letters.append((len(tmp), letter))
     
 letters.sort()
-letters.reverse()
 
-for i in letters:
-    print(f"There are {i} appearances of \"{letter}\"")
+for c, l in letters:
+    print(f"There are {c} appearances of \"{l}\"")
     
 for file in files:
     print(file)
@@ -50,3 +49,9 @@ for file in files:
 code = "".join(code)
 
 print(f"There are {len(code)} characters")
+
+
+
+tmp = [i for i in code.lower() if i == "\n"]
+
+print(f"There are {len(tmp)} newlines")

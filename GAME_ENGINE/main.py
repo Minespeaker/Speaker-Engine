@@ -1,3 +1,5 @@
+from queue import Queue
+
 import pygame, os, math, time, pyperclip, sys, subprocess, multiprocessing, platform
 from pygame import freetype
 from Classes.editor import text, editor
@@ -46,10 +48,9 @@ def dprint(*args):
 
 cpfl = None
 
-ld = {"sx": 0, "sy": 0, "menu_open": False, "menu_slt": None, "rnm": False, "rnt": None}
+ld = {"sx": 0, "sy": 0, "menu_open": False, "menu_slt": None, "rnm": False, "rnt": None, "flrnm": False}
 
-from Functions.fileRW   import *
-from Functions.fileSORT import *
+from Functions.files    import *
 from Functions.edit     import *
 from Functions.export   import *
 from Functions.math     import *
@@ -121,7 +122,16 @@ def listfiles(foldername, files, txtin, size, scrn, off, mx, my, mc, _parent=Tru
                         ld["menu_slt"].append(name)
                         ld["sx"], ld["sy"] = mx, my
                 if unpack:
-                    childsurf, childfiles, childpos = listfiles(name, {name: data}, txtin, (x-indent, y-(_pos-linesize)), scrnsz, (ox+indent, oy+_pos*linesize), mx, my, mc, False, list(path), ogox, ogoy)
+                    childsurf, childfiles, childpos = listfiles(name, 
+                                                                {name: data},
+                                                                txtin,
+                                                                (x-indent, y-(_pos-linesize)),
+                                                                scrnsz,
+                                                                (ox+indent, oy+_pos*linesize),
+                                                                mx, my, mc,
+                                                                False,
+                                                                list(path),
+                                                                ogox, ogoy)
                     unpackedfiles[name] = childfiles, unpack
                     folders.add(childsurf)
                     for _ in range (childpos):
@@ -156,6 +166,7 @@ def listfiles(foldername, files, txtin, size, scrn, off, mx, my, mc, _parent=Tru
         ld["menu_slt"] = None
         ld["rnt"] = None
         ld["rnm"] = False
+        ld["flrnm"] = False
     if hover:
         selrect = pygame.Surface((x+indent*(len(path)+1), linesize), pygame.SRCALPHA)
         pygame.draw.rect(selrect, (192, 192, 192, 128), (0, 0, ox+x, linesize))
@@ -184,6 +195,25 @@ def listfiles(foldername, files, txtin, size, scrn, off, mx, my, mc, _parent=Tru
             
             if nfl.collidepoint(mx, my):
                 pygame.draw.rect(scrn, col[127], nfl)
+                if mc[0] or ld["flrnm"]:
+                    if ld["flrnm"]:
+                        if txtin == "BACKSPACE":
+                            ld["rnt"] = "".join(list(ld["rnt"])[:-1])
+                        elif txtin == "CTRL BACKSPACE":
+                            for _ in range (len(ld["rnt"].split(" "))):
+                                ld["rnt"] = "".join(list(ld["rnt"])[:-1])
+                        elif txtin == "RETURN":
+                            savebin(os.path.join(FILE_PATH, "GAMES", sep.join(ld["menu_slt"]), ld["rnm"]), "")
+                            ld["menu_open"] = False
+                            ld["menu_slt"] = None
+                            ld["rnt"] = None
+                            ld["rnm"] = False
+                            ld["flrnm"] = False
+                        else:
+                            ld["rnt"] = f"{ld["rnt"]}{txtin}"
+                    else:
+                        ld["flrnm"] = True
+                        ld["rnt"] = ld["menu_slt"][-1]
             if nfd.collidepoint(mx, my):
                 pygame.draw.rect(scrn, col[127], nfd)
             if rnm.collidepoint(mx, my):
@@ -192,15 +222,23 @@ def listfiles(foldername, files, txtin, size, scrn, off, mx, my, mc, _parent=Tru
                     if ld["rnm"]:
                         if txtin == "BACKSPACE":
                             ld["rnt"] = "".join(list(ld["rnt"])[:-1])
-                            dprint("Listfiles: Bspace used")
-                        elif txtin == "ENTER":
-                            fd = loadbin(os.path.join(FILE_PATH, "GAMES", sep.join(ld["menu_slt"])))
-                            savebin(os.path.join(FILE_PATH, "GAMES", sep.join(ld["menu_slt"][:-1]), ld["rnt"]), fd)
-                            os.remove(os.path.join(FILE_PATH, "GAMES", sep.join(ld["menu_slt"])))
+                        elif txtin == "CTRL BACKSPACE":
+                            for _ in range (len(ld["rnt"].split(" "))):
+                                ld["rnt"] = "".join(list(ld["rnt"])[:-1])
+                        elif txtin == "RETURN":
+                            dprint(ld)
+                            os.rename(os.path.join(FILE_PATH, "GAMES", sep.join(ld["menu_slt"])), os.path.join(FILE_PATH, "GAMES", ld["rnt"]))
+                            if len(ld["menu_slt"]) == 1:
+                                global game_name
+                                game_name = ld["rnt"]
+                                tmp = multiprocessing.Queue()
+                                recursive_scan(sep, os.path.join(FILE_PATH, "GAMES", game_name), tmp)
+                                files = tmp.get()
                             ld["menu_open"] = False
                             ld["menu_slt"] = None
                             ld["rnt"] = None
                             ld["rnm"] = False
+                            ld["flrnm"] = False
                         else:
                             ld["rnt"] = f"{ld["rnt"]}{txtin}"
                     else:
@@ -219,6 +257,7 @@ def listfiles(foldername, files, txtin, size, scrn, off, mx, my, mc, _parent=Tru
                     ld["menu_slt"] = None
                     ld["rnt"] = None
                     ld["rnm"] = False
+                    ld["flrnm"] = False
                     if slc:
                         cpfl = slf, unpackedfiles
                     else:
@@ -235,13 +274,9 @@ def listfiles(foldername, files, txtin, size, scrn, off, mx, my, mc, _parent=Tru
             
     path = path[:-1]
     if _parent:
-        dprint("Listfiles: Parent subpro fi")
-        dprint("Listfiles: Return Success")
         return scrn, files
         
     else:
-        dprint("Listfiles: Child subpro fi")
-        dprint(files)
         return scrn, unpackedfiles, _pos
 
 def compile_files():
@@ -1009,8 +1044,18 @@ if __name__ == "__main__":
     framen = 0
 
     screen[0][0].fill(col[0])
-    font[25].render_to(screen[0][0], ((screen_width//2)-(get_text_width("Loading...", 25, "Arial")//2), (screen_height//2)-(25)), "Loading...", col[255])
-    font[25].render_to(screen[0][0], ((screen_width//2)-(get_text_width("Do not close", 25, "Arial")//2), (screen_height//2)+(25)), "Do not close", col[255])
+    font[25].render_to(screen[0][0],
+                       ((screen_width//2)-(get_text_width("Loading...", 25, "Arial")//2),
+                        (screen_height//2)-(25)),
+                       "Loading...",
+                       col[255])
+    
+    font[25].render_to(screen[0][0],
+                       ((screen_width//2)-(get_text_width("Do not close", 25, "Arial")//2),
+                        (screen_height//2)+(25)),
+                       "Do not close",
+                       col[255])
+    
     pygame.display.update()
     game_name = targ_item
 
@@ -1057,8 +1102,10 @@ if __name__ == "__main__":
             
             edit = editor(0.2, (sw-(2*(sw//5)), sh), font[20])
 
-            kp = {pygame.K_BACKSPACE: 0, pygame.K_RETURN: 0, pygame.K_RIGHT: 0, pygame.K_LEFT: 0, pygame.K_UP: 0, pygame.K_DOWN: 0}
+            kp = {pygame.K_BACKSPACE: 0, pygame.K_RETURN: 0, pygame.K_RIGHT: 0, pygame.K_LEFT: 0, pygame.K_UP: 0, pygame.K_DOWN: 0, pygame.K_LCTRL: 0}
 
+
+            # Main Editor Loop
             while run:
                 txtin = ""
                 for e in pygame.event.get():
@@ -1072,6 +1119,9 @@ if __name__ == "__main__":
                     if e.type == pygame.KEYUP:
                         if e.key in kp:
                             kp[e.key] = 0
+                    if e.type == pygame.K_LCTRL:
+                        if e.key in kp:
+                            k[e.key] = 1
                             
                     if e.type == pygame.MOUSEWHEEL:
                         ms = e.y
@@ -1086,6 +1136,7 @@ if __name__ == "__main__":
                         if k == pygame.K_LEFT: txtin = "LEFT"
                         if k == pygame.K_UP: txtin = "RIGHT"
                         if k == pygame.K_DOWN: txtin = "DOWN"
+                        if k == pygame.K_LCTRL: txtin = f"CTRL {txtin}"
                     
                 if (sw, sh) != screen.get_size():
                     sw, sh = screen.get_size()
@@ -1115,7 +1166,13 @@ if __name__ == "__main__":
                 
                 dprint(mx, my)
                 
-                if prevfiles != files or (inrange(width, my, width+((sh//2)-4)) and inrange(width, mx, width+(sw//5-(width*2)))) or ld["menu_open"] or framen == 0:
+                if prevfiles != files or (inrange(width,
+                                                  my,
+                                                  width+((sh//2)-4)) 
+                                      and inrange(width,
+                                                  mx,
+                                                  width+(sw//5-(width*2)))) or ld["menu_open"] or framen == 0:
+                    
                     filesurf, files = listfiles(game_name, files, txtin, (sw//5-(width*2), (sh//2)-4), (sw, sh), (width, width), mx, my, mc)
                     final_load = 2
                 elif final_load == 2:

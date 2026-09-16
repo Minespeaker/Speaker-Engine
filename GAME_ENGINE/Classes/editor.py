@@ -45,7 +45,7 @@ class text:
             if blinkpos != len(inlst):
                 blinkpos += 1
         
-        elif char == "WORD_LEFT":
+        elif char == "CTRL LEFT":
             # Move cursor to the start of the previous word
             if blinkpos > 0:
                 i = blinkpos - 1
@@ -57,7 +57,7 @@ class text:
                     i -= 1
                 blinkpos = i
         
-        elif char == "WORD_RIGHT":
+        elif char == "CTRL RIGHT":
             # Move cursor to the start of the next word
             L = len(inlst)
             i = blinkpos
@@ -117,7 +117,7 @@ class editor:
             self.bpl = max(self.bpl-1, 0)
             if self.bpl == tmp:
                 self.bpp = 0
-        elif cpressed == "ENTER":
+        elif cpressed == "RETURN":
             self.bpl += 1
             self.code.insert(self.bpl, "")
         elif cpressed == "BACKSPACE" and self.bpp == 0:
