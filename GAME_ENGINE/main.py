@@ -14,14 +14,16 @@ OS = osvar[OS]
 
 if OS == "Linux":
     OS = f"{OS}: {platform.freedesktop_os_release()["NAME"]} {platform.freedesktop_os_release()["VERSION_CODENAME"]} {platform.freedesktop_os_release()["VERSION"]}"
- 
+
+print("="*50)
+
 print(f"Detected OS Environment: {OS}")
 
 time.sleep(1)
 
 sep = "\\" if "Windows" in OS else "/"
 
-debug = True
+debug = False
 skip = True
 
 tmp = os.path.dirname(__file__)
@@ -44,7 +46,8 @@ def dprint(*args):
             print(args)
     except NameError:
         debug = False
-
+        
+dprint()
 
 cpfl = None
 
