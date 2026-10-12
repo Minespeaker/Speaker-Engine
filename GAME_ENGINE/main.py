@@ -1,3 +1,7 @@
+# If you found this on one of my many random USB sticks please contact
+# Phone: +642041694716
+# Email: alexander.s.gainsford@gmail.com
+
 from queue import Queue
 
 import pygame, os, math, time, pyperclip, sys, subprocess, multiprocessing, platform

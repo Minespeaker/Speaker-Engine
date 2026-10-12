@@ -14,70 +14,6 @@ class text:
         text_rect = font.get_rect(text)
         
         return(text_rect.width+8)
-    
-    def edit_str(char, instr, blinkpos):
-    
-        if blinkpos > len(instr):
-            blinkpos = len(instr)
-                
-        inlst = list(instr)
-        
-        if char == "BACKSPACE":
-            if blinkpos != 0:
-                blinkpos -= 1
-                try:
-                    del inlst[blinkpos]
-                except Exception:
-                    # defensive: if deletion fails, ignore
-                    pass
-    
-        elif char == "UP":
-            blinkpos = 0
-            
-        elif char == "DOWN":
-            blinkpos = len(inlst)
-            
-        elif char == "LEFT":
-            if blinkpos != 0:
-                blinkpos -= 1
-            
-        elif char == "RIGHT":
-            if blinkpos != len(inlst):
-                blinkpos += 1
-        
-        elif char == "CTRL LEFT":
-            # Move cursor to the start of the previous word
-            if blinkpos > 0:
-                i = blinkpos - 1
-                # skip any trailing whitespace to the left
-                while i > 0 and inlst[i].isspace():
-                    i -= 1
-                # now move to the start of the word
-                while i > 0 and not inlst[i-1].isspace():
-                    i -= 1
-                blinkpos = i
-        
-        elif char == "CTRL RIGHT":
-            # Move cursor to the start of the next word
-            L = len(inlst)
-            i = blinkpos
-            # skip any whitespace to the right
-            while i < L and inlst[i].isspace():
-                i += 1
-            # skip the current word
-            while i < L and not inlst[i].isspace():
-                i += 1
-            blinkpos = i
-
-        elif char == "ESCAPE":
-            pass
-            
-        elif char != "":
-            s = str(char)
-            for ch in s:
-                inlst.insert(blinkpos, ch)
-                blinkpos += 1
-        return "".join(inlst), blinkpos
 
 class editor:
     def __init__(self, scroll_multiplier=0.2, size=tuple, font=None):
@@ -107,11 +43,27 @@ class editor:
         self.scrnps += self.scrnspd
         self.scrnps = min(self.scrnps, len(self.code)-1)
         self.scrnps = max(self.scrnps, 0)
-        if cpressed == "DOWN":
+        if cpressed == "LEFT":
+            self.bpp -= 1
+            if self.bpp < 0:
+                if self.bpl == 0:
+                    self.bpp = 0
+                else:
+                    self.bpl -= 1
+                    self.bpp = len(self.code[self.bpl])
+        elif cpressed == "RIGHT":
+            self.bpp += 1
+            if self.bpp > len(self.code[self.bpl]):
+                if self.bpl == len(self.code):
+                    self.bpp -= 1
+                else:
+                    self.bpp = 0
+                    self.bpl += 1
+        elif cpressed == "DOWN":
             tmp = self.bpl
             self.bpl = min(self.bpl+1, len(self.code)-1)
             if tmp == self.bpl:
-                self.bpp = len(self.code[self.blist(self.scrn.get_size())[0]])-1
+                self.bpp = len(self.code[tmp])-1
         elif cpressed == "UP":
             tmp = self.bpl
             self.bpl = max(self.bpl-1, 0)
@@ -120,23 +72,30 @@ class editor:
         elif cpressed == "RETURN":
             self.bpl += 1
             self.code.insert(self.bpl, "")
-        elif cpressed == "BACKSPACE" and self.bpp == 0:
-            self.bpp = len(self.code[self.bpl-1])
-            self.bpl -= 1
-            self.code.pop(self.bpl+1)
-            if self.bpl == -1:
-                self.bpl += 1
-            if self.code == []:
-                self.code.append("")
+        elif cpressed == "BACKSPACE":
+            if self.bpp == 0:
+                self.bpp = len(self.code[self.bpl-1])
+                self.bpl -= 1
+                self.code.pop(self.bpl+1)
+                if self.bpl == -1:
+                    self.bpl += 1
+                if self.code == []:
+                    self.code.append("")
+            else:
+                tmp = list(self.code[self.bpl])
+                tmp.pop(self.bpp-1)
+                self.code[self.bpl] = "".join(tmp)
+                self.bpp -= 1
         elif cpressed == "TAB":
             tmp = list(self.code[self.bpl])
             tmp.insert(self.bpp, "\t")
             self.code[self.bpl] = "".join(tmp)
             self.bpp += 1
-        else:
-            line = self.code[int(self.bpl)]
-            line, self.bpp = text.edit_str(cpressed, line, self.bpp)
-            self.code[int(self.bpl)] = line
+        elif len(cpressed) == 1:
+            tmp = list(self.code[self.bpl])
+            tmp.insert(self.bpp, cpressed)
+            self.code[self.bpl] = "".join(tmp)
+            self.bpp += len(cpressed)
 
         if mc[0] and not self.md:
             self.md = True
