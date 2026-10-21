@@ -14,7 +14,10 @@ OS = platform.system()
 
 osvar = {"Windows": "Microsoft windows", "Linux": "Linux"}
 
-OS = osvar[OS]
+try:
+    OS = osvar[OS]
+except:
+    OS = "MacOS"
 
 if OS == "Linux":
     OS = f"{OS}: {platform.freedesktop_os_release()["NAME"]} {platform.freedesktop_os_release()["VERSION_CODENAME"]} {platform.freedesktop_os_release()["VERSION"]}"
@@ -27,7 +30,7 @@ time.sleep(1)
 
 sep = "\\" if "Windows" in OS else "/"
 
-debug = False
+debug = True
 skip = True
 
 tmp = os.path.dirname(__file__)
@@ -1174,11 +1177,11 @@ if __name__ == "__main__":
                 dprint(mx, my)
                 
                 if prevfiles != files or (inrange(width,
-                                                  my,
-                                                  width+((sh//2)-4)) 
-                                      and inrange(width,
-                                                  mx,
-                                                  width+(sw//5-(width*2)))) or ld["menu_open"] or framen == 0:
+                                                    my,
+                                                    width+((sh//2)-4)) 
+                                        and inrange(width,
+                                                    mx,
+                                                    width+(sw//5-(width*2)))) or ld["menu_open"] or framen == 0:
                     
                     filesurf, files = listfiles(game_name, files, txtin, (sw//5-(width*2), (sh//2)-4), (sw, sh), (width, width), mx, my, mc)
                     final_load = 2
@@ -1218,5 +1221,5 @@ if __name__ == "__main__":
                     run = False
         case _:
             raise Exception("Bad game type")
-        
-pygame.quit()
+
+    pygame.quit()

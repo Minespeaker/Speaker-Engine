@@ -2,5 +2,5 @@
     "python.languageServer": "Default",
     "python.analysis.autoImportCompletions": false,
     "python.analysis.languageServerMode": "full",
-    "python.REPL.enableREPLSmartSend": false
+    "python.REPL.enableREPLSmartSend": true
 }

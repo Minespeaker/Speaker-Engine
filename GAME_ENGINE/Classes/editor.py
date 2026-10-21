@@ -2,6 +2,9 @@ import pygame
 import copy
 from pygame import freetype
 from Classes.pyselect import pyselect
+from main import dprint
+
+dprint("test")
 
 class text:
     def get_text_width(text, font):
@@ -112,6 +115,8 @@ class editor:
             else:
                 self.bpl ,self.bpp = self._get_pos_of_mouse(mx, my)
                 self.pos = [[], []]
+        
+        dprint()
             
     def _get_pos_of_mouse(self, mx, my):
         mx -= self.px

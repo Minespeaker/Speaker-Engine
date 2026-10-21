@@ -3,7 +3,7 @@ import time
 from math import *
 pygame.init()
 
-sw, sh = 1920, 1080
+sw, sh = 1080, 720
 screen = pygame.display.set_mode((sw, sh))
 pygame.display.set_caption("3dCircle")
 
@@ -59,8 +59,8 @@ def getearthattime(day, night):
     secs = t[5]
     
     secsTotal = secs+(mins*60)+(hour*3600)
-    perOfDay = secsTotal/86400
-    perofEarth = round(perOfDay*360)
+    perOfDay = secsTotal/(60*60*24)
+    perofEarth = round(-perOfDay*360)
     
     earthmap = day
     for row in range (360):
