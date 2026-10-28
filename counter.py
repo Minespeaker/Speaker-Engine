@@ -20,7 +20,7 @@ def get_py_files(dir, _parent=True):
 code = []
 files = []
 
-for i in get_py_files("/home/minespeaker/programs/Speaker-Engine/GAME_ENGINE"):
+for i in get_py_files("GAME_ENGINE"):
     files.append(i)
     with open(i, "r", encoding="utf-8") as f:
         code.append(f.read())
@@ -48,9 +48,9 @@ for file in files:
     
 code = "".join(code)
 
+print(code)
+
 print(f"There are {len(code)} characters")
-
-
 
 tmp = [i for i in code.lower() if i == "\n"]
 
