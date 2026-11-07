@@ -1,41 +1,35 @@
-import math, random
+"""
+Game plan:
+    Class node:  Take all weights from previous nodes (as inputs)
+    Class mlm:   Core functionality
+    Class train: Train the aactual MLM
+"""
 
-class mlm:
-    def __init__(self, name, inputs, outputs):
-        """
-        Initialise the MLM
-        """
-        self.name = name
-        self.network = []
-        self.inputs = inputs
-        self.outputs = outputs
+import random
+import math
+
+# Sigmoid and ReLu are both functions that are applied to NN nodes
+
+def sigmoid(z):
+    """
+    Turn any number to a 0-1 number
+    The further into the negatives the closer it is to 0
+    The further into the positives the closer it is to 1
+    """
     
-    def gen(self, hidden_layers, nodes_per_layer, random_per_node=False):
-        """
-        generates a neural network for the MLM
-        """
-        self.network = [[random.randint(-1000, 1000)/1000 if random_per_node else 0 for _ in range (nodes_per_layer)] for _ in range (hidden_layers)]
-        
-        self.network.insert(0, [0 for _ in range (self.inputs)])
-        self.network.append([0 for _ in range (self.outputs)])
-        
-        self.connect = [[[0 for _ in range (nodes_per_layer)] for _ in range (nodes_per_layer)] for _ in range (hidden_layers+1)]
-        #                                                                                                       First dimension is start layer
-        #                                                                     Second Dimension is start node
-        #                                   Third dimension is end node
-                
-    def run(self, args):
-        """
-        run the MLM
-        """
-        
-        for layer in range (self.network.__len__()):
-            start = self.network[layer]
-            end = self.network[layer+1]
-            
-            cnct = []
-            for sn in self.network[layer]:
-                cnct.append([])
-                for en in sn:
-                    cnct[-1].append(en)
-                    
+    return 1/(1+(math.e**-z))
+
+def relu(z):
+    """
+    Basically floors any number to be 0 if in the negatives
+    """
+    
+    return max(z, 0)
+
+
+class node():
+    
+    def __init__(self, start_node=bool, previous_nodes=[]):
+        self.state = 0 # What the current state of the node is
+        self.eff = 0.5 # How much it effects the state when passed on
+        self.prevnodes = previous_nodes
