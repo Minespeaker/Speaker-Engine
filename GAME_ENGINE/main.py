@@ -2,6 +2,10 @@
 # Phone: +642041694716
 # Email: alexander.s.gainsford@gmail.com
 
+import time
+
+timer = time.perf_counter()
+
 from queue import Queue
 
 import pygame, os, math, time, pyperclip, sys, subprocess, multiprocessing, platform
@@ -9,6 +13,10 @@ from pygame import freetype
 from Classes.editor import text, editor
 from Classes.executer import execute
 from Classes.pyselect import pyselect
+
+if __name__ == "__main__":
+    pygame.init()
+    screen = pygame.display.set_mode((0, 0))
 
 OS = platform.system()
 
@@ -20,7 +28,7 @@ except:
     OS = "MacOS"
 
 if OS == "Linux":
-    OS = f"{OS}: {platform.freedesktop_os_release()["NAME"]} {platform.freedesktop_os_release()["VERSION_CODENAME"]} {platform.freedesktop_os_release()["VERSION"]}"
+    OS = f"{OS}: {platform.freedesktop_os_release()["NAME"]}"
 
 print("="*50)
 
@@ -695,8 +703,7 @@ def tick_new():
 
 # Initialisations
 if __name__ == "__main__":
-    pygame.init()
-    pygame.freetype.init()
+    freetype.init()
 
     button_pushed_states = {}
 
@@ -1039,8 +1046,9 @@ if __name__ == "__main__":
             if framen % 3600 == 0:
                 file_count = compile_files()
                 dprint("Reloaded Page")
-
-
+                
+        print(timer-time.perf_counter())
+                
 # Editors
 if __name__ == "__main__":
     if targ_item != "":
