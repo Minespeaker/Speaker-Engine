@@ -59,14 +59,17 @@ class node:
             self.nodeweight = [random.gauss(0, 0.5) for _ in range (len(previous_nodes))]
             self.bias = random.gauss(0, 0.5)
         else:
-            self.prevnodes = []
+            self.prevnodes = [] # No prevnodes to prevent issues arising with mlm giving prevnodes to input nodes
             self.nodeweight = []
+            self.bias = 0
         self.func = method
         self.input = start_node
         self.reset()
         
     def calculate(self, inputs) -> float:
         if self.input is not None:
+            # Would overwrite bias here in case of mutation
+            # but it would take a long time to do for a network with thousands of inputs
             return inputs[self.input]
         if self.tmpvar[0] == inputs:
             return self.tmpvar[1]
@@ -86,6 +89,8 @@ class node:
     
 class mlm:
     # I'm gonna cry the node class was so easy this is insane
+    # Nevermind that was strangely easy!
+    # (Used AI for bugchecking only cause i can't test this without extensive debugs)
     def __init__(self, hidden_layers, layer_nodes, inputs, outputs, method=sigmoid):
         self.nodearray = []
         self.nodearray.append([node(i, [], method) for i in range (inputs)])
@@ -106,3 +111,6 @@ class mlm:
         self.reset()
         
         return outputs
+    
+    def copy(self):
+        return copy.deepcopy(self)
