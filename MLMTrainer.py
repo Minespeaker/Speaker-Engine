@@ -57,6 +57,10 @@ class node:
         if start_node is None:
             self.prevnodes = previous_nodes
             self.nodeweight = [random.gauss(0, 0.5) for _ in range (len(previous_nodes))]
+            self.bias = random.gauss(0, 0.5)
+        else:
+            self.prevnodes = []
+            self.nodeweight = []
         self.func = method
         self.input = start_node
         self.reset()
@@ -72,7 +76,7 @@ class node:
             weightout = nodeout*self.nodeweight[innode]
             tot += weightout
         
-        out = self.func(tot)
+        out = self.func(tot+self.bias)
         self.tmpvar = [inputs, out]
         
         return out
@@ -93,3 +97,12 @@ class mlm:
         for layer in self.nodearray:
             for n in layer:
                 n.reset()
+        
+    def forward(self, inputs):
+        outputs = []
+        for n in self.nodearray[-1]:
+            outputs.append(n.calculate(inputs))
+            
+        self.reset()
+        
+        return outputs
