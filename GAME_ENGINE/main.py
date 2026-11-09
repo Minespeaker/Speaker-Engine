@@ -49,6 +49,8 @@ sys.path[0] = (FILE_PATH)
 
 if not os.path.exists(os.path.join(FILE_PATH, "GAMES")):
     os.mkdir(os.path.join(FILE_PATH, "GAMES"))
+    if not os.path.exists(os.path.join(FILE_PATH, "Quickaccess")):
+        os.mkdir(os.path.join(FILE_PATH, "Quickaccess"))
     for i in os.listdir(os.path.join(FILE_PATH, "Quickaccess")):
         os.remove(os.path.join(FILE_PATH, "Quickaccess", i))
 
