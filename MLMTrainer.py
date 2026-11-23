@@ -11,7 +11,7 @@ import copy
 
 """
 The actual NN: 90%
-NN Container:  1%
+NN Container:  100%
 NN Trainer:    0%
 """
 
@@ -68,8 +68,6 @@ class node:
         
     def calculate(self, inputs) -> float:
         if self.input is not None:
-            # Would overwrite bias here in case of mutation
-            # but it would take a long time to do for a network with thousands of inputs
             return inputs[self.input]
         if self.tmpvar[0] == inputs:
             return self.tmpvar[1]
@@ -88,17 +86,20 @@ class node:
         self.tmpvar = [None, 0] # So if multiple nodes in the next layer call theres only 1 calculation
     
 class mlm:
-    # I'm gonna cry the node class was so easy this is insane
-    # Nevermind that was strangely easy!
-    # (Used AI for bugchecking only cause i can't test this without extensive debugs)
     def __init__(self, hidden_layers, layer_nodes, inputs, outputs, method=sigmoid):
-        self.nodearray = []
-        self.nodearray.append([node(i, [], method) for i in range (inputs)])
-        for _ in range (hidden_layers):
-            self.nodearray.append([node(None, self.nodearray[-1], method) for _ in range (layer_nodes)])
-        self.nodearray.append([node(None, self.nodearray[-1], method) for _ in range (outputs)])
+        self.nodearray = [] # NN Array
+        self.nodearray.append([node(i, [], method) for i in range (inputs)]) # Input nodes
+        self.hiddenlayercount = hidden_layers
+        self.nodesperlayer = layer_nodes
+        for _ in range (self.hiddenlayercount):
+            self.nodearray.append([node(None, self.nodearray[-1], method) for _ in range (self.nodesperlayer)]) # Hidden nodes
+        self.nodearray.append([node(None, self.nodearray[-1], method) for _ in range (outputs)]) # Output nodes
         
     def reset(self):
+        """
+        Empty NN cache
+        """
+        
         for layer in self.nodearray:
             for n in layer:
                 n.reset()
@@ -114,3 +115,81 @@ class mlm:
     
     def copy(self):
         return copy.deepcopy(self)
+
+
+
+
+class train:
+    def from_nn(neural_network, population, testing_quantity, survivors, generations, accuracy, training_data):
+        """
+        Args:
+            _: stand-in for self
+            
+            neural_network: mlm class to train from
+            
+            population: how many mutations per generation
+            
+            testing_quantity: how many points from the dataset to test the mlm on. more means better mlm judgement, lower means faster mlm running
+            
+            survivors: how many mlms can survive each generation. too low means not enough mutation variety and won't train properly, too high means bad mutations will survive and contaminate the next generation.
+            
+            generations: how many generations to train for. Set to -1 to use accuracy
+            
+            accuracy: what percent acurate the mlm must be on avarage to finish training
+            
+            training_data: the data to train the mlm off of. form must be list of tuples, first item in tuple list of inputs, second a list of outputs. must be all floats or ints
+        """
+        
+        nn = neural_network
+        
+        gen = [nn.copy()]
+        
+        training = True
+        while training:
+            # create a new population
+            
+            for _ in range(population-1):
+                gen.append(gen[0].copy())
+                ran1 = random.randint(1, gen[-1].hiddenlayercount+1)
+                ran2 = random.randint(0, len(gen[-1].nodearray[ran1])-1)
+                tmp = gen[-1].nodearray[ran1][ran2].nodeweight
+                ran3 = random.randint(0, len(tmp)-1)
+                tmp[ran3] += random.gauss(0, 0.25)
+                
+            # Run all the mlms
+            
+            outputs = []
+            for _ in range (testing_quantity):
+                random_data = training_data[random.randint(0, len(training_data)-1)]
+                
+                inputs, expected_outputs = random_data
+                
+                outputs.append(([mutation.forward(inputs) for mutation in gen], expected_outputs))
+            
+            # Evaluate error
+            
+            err = []
+            firstloop = True
+            for trueOut, wantOut in outputs:
+                for loop, mutationOutput in enumerate(trueOut):
+                    diff = []
+                    for idx in range (len(mutationOutput)):
+                        diff.append(abs(mutationOutput[idx]-wantOut[idx]))
+                    if firstloop:
+                        err.append([sum(diff)])
+                    else:
+                        err[loop].append(sum(diff))
+                        
+                firstloop = False
+                
+            # Filter for survivors
+            
+            err = [(tmp, n) for n, tmp in enumerate(err)]
+            
+            sort = []
+            for _ in err:
+                sort.append((-1, 0))
+                for error, source in err:
+                    error2, _ = sort[-1]
+                    if sum(error) < error2 or error2 == -1:
+                        sort[-1] = (sum(error), source)
