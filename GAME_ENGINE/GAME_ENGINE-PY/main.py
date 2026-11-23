@@ -38,7 +38,6 @@ time.sleep(1)
 
 sep = "\\" if "Windows" in OS else "/"
 
-debug = True
 skip = True
 
 tmp = os.path.dirname(__file__)
@@ -56,14 +55,8 @@ if not os.path.exists(os.path.join(FILE_PATH, "GAMES")):
 
 file_type = ".sngf"
 
-def dprint(*args):
-    global debug
-    try:
-        if debug:
-            print(args)
-    except NameError:
-        debug = False
-        
+from Functions.debug import dprint
+
 dprint()
 
 cpfl = None

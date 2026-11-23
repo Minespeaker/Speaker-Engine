@@ -3,6 +3,8 @@ import copy
 from pygame import freetype
 from Classes.pyselect import pyselect
 
+from Functions.debug import dprint
+
 class text:
     def get_text_width(text, font):
     
