@@ -56,7 +56,7 @@ public class Main : Game
         
         _spriteBatch.Begin();
 
-        // Create background
+        // AHH
 
         
 
